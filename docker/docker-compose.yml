@@ -1,7 +1,7 @@
-version: '3.1'
+version: '3.8'
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: postgresql-temelio
     environment:
       POSTGRES_USER: postgres
@@ -13,6 +13,10 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - temelio-network
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -d temelio -U postgres"]
+        interval: 5s
+        timeout: 60s      
 
   sonarqube:
     image: sonarqube:latest
@@ -86,8 +90,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-      - sonarqube_token_creator      
+      postgres:
+          condition: service_healthy
     environment:
       - DATABASE_HOSTNAME=postgres:5432
       - DATABASE_NAME=temelio
