@@ -1,0 +1,126 @@
+version: '3.1'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgresql-temelio
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: t3m3l10
+      POSTGRES_DB: temelio
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - temelio-network
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonar-temelio
+    ports:
+      - "9000:9000"
+      - "9092:9092"
+    environment:
+      - SONARQUBE_HOME=/opt/sonarqube
+      - SONAR_VERSION=10.1.0.73491
+      - SQ_DATA_DIR=/opt/sonarqube/data
+      - SQ_EXTENSIONS_DIR=/opt/sonarqube/extensions
+      - SQ_LOGS_DIR=/opt/sonarqube/logs
+      - SQ_TEMP_DIR=/opt/sonarqube/temp
+    volumes:
+      - ./sonarqube_data:/opt/sonarqube/data
+      - ./sonarqube_extensions:/opt/sonarqube/extensions
+      - ./sonarqube_logs:/opt/sonarqube/logs
+      - ./sonarqube_temp:/opt/sonarqube/temp
+    networks:
+      - temelio-network      
+
+  sonarqube_token_creator:
+    image: badouralix/curl-jq
+    depends_on:
+      - sonarqube
+    entrypoint: >
+      sh -c "
+      while ! curl -s http://sonarqube:9000/api/system/status | grep -q 'UP'; do
+        echo 'Waiting for SonarQube to start...';
+        sleep 5;
+      done;
+      echo 'SonarQube is ready. Creating user...';
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/users/create' -d 'login=temelio&name=Temelio%20User&password=t3m3l10&password_confirmation=t3m3l10';
+      echo 'User created. Assigning permissions...';
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/permissions/add_user' -d 'login=temelio&permission=admin';
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/permissions/add_user' -d 'login=temelio&permission=scan';
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/permissions/add_user' -d 'login=temelio&permission=provisioning';
+      echo 'Permissions assigned. Generating the token...';
+      echo 'Changing admin password...';
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/users/change_password' -d 'login=admin&password=t3m3l10&previousPassword=admin';
+      echo 'Revoking old token...';
+      curl -s -u temelio:t3m3l10 -X POST 'http://sonarqube:9000/api/user_tokens/revoke' -d 'login=temelio&name=token-temelio'
+      echo 'Generating new token...';
+      token=$(curl -s -u temelio:t3m3l10 -X POST 'http://sonarqube:9000/api/user_tokens/generate' -d 'name=token-temelio' | jq -r '.token');
+      echo \"Generated Token: $$token\";
+      echo \"$$token\" > /tmp/sonar_token.txt;
+      cp /tmp/sonar_token.txt /shared/sonar_token.txt;
+      "
+    networks:
+      - temelio-network
+    volumes:
+      - shared:/shared      
+
+  sendgrid:
+    image: ghashange/sendgrid-mock:1.9.2
+    container_name: sendgrid-temelio
+    ports:
+      - "3000:3000"
+    environment:
+      - API_KEY=sendgrid-temelio
+    networks:
+      - temelio-network      
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: temelio-backend:latest
+    container_name: backend-temelio
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - sonarqube_token_creator      
+    environment:
+      - DATABASE_HOSTNAME=postgres:5432
+      - DATABASE_NAME=temelio
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=t3m3l10
+      - SONAR_PROJECT_KEY=temelio
+      - SONAR_HOST_URL=http://sonarqube:9000
+      - SONAR_TOKEN=$(cat /shared/sonar_token.txt)
+      - SENDGRID_HOST=http://sendgrid:3000
+      - SENDGRID_API_KEY=sendgrid-temelio
+    networks:
+      - temelio-network
+    volumes:
+      - shared:/shared      
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: temelio-frontend:latest
+    container_name: frontend-temelio
+    ports:
+      - "4000:4000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8080
+    networks:
+      - temelio-network
+
+networks:
+  temelio-network:
+    driver: bridge     
+
+volumes:
+  shared:     

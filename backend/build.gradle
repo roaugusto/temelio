@@ -1,0 +1,115 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.5'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'jacoco'
+	id 'org.sonarqube' version '5.0.0.4638'
+}
+
+group = 'com.temelio.nonprofit'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+jacoco {
+	toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+	reports {
+		xml.required.set(true)
+		html.required.set(true)
+		html.outputLocation = layout.buildDirectory.dir('coverage-reports/unit-test-report/')
+	}
+}
+
+dependencies {
+	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	implementation 'com.zaxxer:HikariCP'
+	implementation 'org.postgresql:postgresql'
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+	implementation 'com.sendgrid:sendgrid-java:4.10.2'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+jacocoTestReport {
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it).exclude(
+					'**/com/temelio/nonprofit/email/Application.class',
+					'**/com/temelio/nonprofit/email/config/**',
+					'**/com/temelio/nonprofit/email/model/**',
+					'**/com/temelio/nonprofit/email/dto/**',
+					'**/com/temelio/nonprofit/email/exception/**',
+			)
+		}))
+	}
+}
+
+test {
+	finalizedBy jacocoTestReport
+}
+
+sonar {
+	properties {
+		property "sonar.projectKey", System.getenv("SONAR_PROJECT_KEY")
+		property "sonar.host.url", System.getenv("SONAR_HOST_URL")
+		property "sonar.token", System.getenv("SONAR_TOKEN")
+		property "sonar.java.binaries", "build/classes"
+		property "sonar.sources", "src/main/java"
+		property "sonar.tests", "src/test/java"
+		property "sonar.java.coveragePlugin", "jacoco"
+		property "sonar.exclusions", "**/com/temelio/nonprofit/email/Application.class, **/com/temelio/nonprofit/email/config/**, **/com/temelio/nonprofit/email/model/**, **/com/temelio/nonprofit/email/dto/**, **/com/temelio/nonprofit/email/exception/**"
+	}
+}
+
+tasks.register('checkForDuplicateFlywayMigrationVersions') {
+	def migrations = [:]
+	fileTree("${rootDir}/src/main/resources/db/migration/").visit { FileVisitDetails details ->
+		def migrationVer = details.file.name.split('__')[0]
+		if (!migrations.containsKey(migrationVer)) {
+			migrations[migrationVer] = details.file.name
+		} else {
+			def error = "Found duplicate migration version ${migrationVer}.\r\n1:${migrations.get(migrationVer)}\r\n2:${details.file.name}"
+			println error
+			throw new GradleException(error)
+		}
+	}
+}
+
+tasks.register('runSonar') {
+	dependsOn 'sonar'
+}
+
+tasks.processResources.dependsOn(checkForDuplicateFlywayMigrationVersions)
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.jar {
+	archiveFileName.set("app.jar")
+}
