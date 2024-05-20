@@ -62,9 +62,7 @@ export default function Donation() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-
+    <div>
       <div className="flex mt-2 gap-3 items-center justify-between">
         <h1 className="text-2xl ml-1">Donations</h1>
         <div className='flex gap-3'>

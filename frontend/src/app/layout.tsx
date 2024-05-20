@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Suspense } from "react";
+import { Header } from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Suspense fallback={<div>Loading...</div>}>
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            {children}
+          </div>
         </Suspense>
         <ToastContainer />
       </body>

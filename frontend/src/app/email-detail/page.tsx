@@ -44,9 +44,7 @@ export default function EmailDetail() {
 
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-
+    <div>
       <div className="flex mt-2 items-center">
         <ChevronLeft className="cursor-pointer" size={36} onClick={() => router.back()} />
         <h1 className="text-2xl ml-1">Email Detail</h1>
