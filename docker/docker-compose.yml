@@ -41,6 +41,7 @@ services:
 
   sonarqube_token_creator:
     image: badouralix/curl-jq
+    container_name: sonar-token-temelio
     depends_on:
       - sonarqube
     entrypoint: >
