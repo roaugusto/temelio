@@ -14,26 +14,26 @@ The Email System for Nonprofit Organizations by Temelio was developed to automat
 </p>
 
 ### Frontend
-- **Next.js with React for a responsive and user-friendly user interface**: http://localhost:4000
+- **Next.js with React for a responsive and user-friendly user interface**
 
 <p align="center">
   <img src="./images/frontend.png" alt="Frontend Image" style="width: 600px;" >
 </p>
 
 ### Additional Tools
-- **Swagger for API endpoint documentation**: http://localhost:8080/swagger-ui.html
+- **Swagger for API endpoint documentation**
 
   <p align="center">
     <img src="./images/swagger.png" alt="Swagger Image" style="width: 600px;">
   </p>
 
-- **SendGrid mock for simulating email sending**: http://localhost:3000
+- **SendGrid mock for simulating email sending**
 
   <p align="center">
     <img src="./images/sendgrid.png" alt="SendGrid Image" style="width: 600px;">
   </p>
 
-- **SonarQube for static code analysis**: http://localhost:9000
+- **SonarQube for static code analysis**
     ```
     user: temelio
     password: t3m3l10
