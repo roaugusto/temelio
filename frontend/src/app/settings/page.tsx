@@ -78,7 +78,7 @@ export default function Settings() {
     <div>
       <div className="flex mt-2 items-center">
         <ChevronLeft className="cursor-pointer" size={36} onClick={() => router.back()} />
-        <h1 className="text-2xl ml-1">Settings</h1>
+        <h1 className="text-lg lg:text-2xl ml-1">Settings</h1>
       </div>
 
       <FormProvider {...templateForm}>
@@ -137,12 +137,10 @@ export default function Settings() {
           </div>
 
           <div className="flex justify-end">
-            <button
-              className="rounded-lg border bg-blue-700 px-2 py-1 font-semibold text-white shadow-sm hover:bg-blue-800"
-              type="submit"
-            >
+            <Button className="text-xs text-center" variant="contained" type="submit">
               Save
-            </button>
+            </Button>
+
           </div>
         </form>
       </FormProvider>

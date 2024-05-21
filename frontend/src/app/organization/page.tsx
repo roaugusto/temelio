@@ -82,7 +82,7 @@ export default function Organization() {
     <div>
       <div className="flex mt-2 items-center">
         <ChevronLeft className="cursor-pointer" size={36} onClick={() => router.back()} />
-        <h1 className="text-2xl ml-1">Organization</h1>
+        <h1 className="text-lg lg:text-2xl ml-1">Organization</h1>
       </div>
 
       <FormProvider {...organizationForm}>

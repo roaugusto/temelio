@@ -101,7 +101,7 @@ export default function DonationAdd() {
     <div>
       <div className="flex mt-2 items-center">
         <ChevronLeft className="cursor-pointer" size={36} onClick={() => router.back()} />
-        <h1 className="text-2xl ml-1">Donation</h1>
+        <h1 className="text-lg lg:text-2xl ml-1">Donation</h1>
       </div>
 
       <FormProvider {...donationForm}>

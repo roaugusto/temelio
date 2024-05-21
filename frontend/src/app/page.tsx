@@ -42,8 +42,8 @@ export default function Home() {
   return (
     <div>
       <div className="flex mt-2 gap-3 items-center justify-between">
-        <h1 className="text-2xl ml-1">Organizations</h1>
-        <Button variant="contained" component={Link} href="/organization">
+        <h1 className="text-lg lg:text-2xl ml-1">Organizations</h1>
+        <Button className="text-xs" variant="contained" component={Link} href="/organization">
           + Add
         </Button>
       </div>

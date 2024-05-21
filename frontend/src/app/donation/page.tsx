@@ -64,12 +64,12 @@ export default function Donation() {
   return (
     <div>
       <div className="flex mt-2 gap-3 items-center justify-between">
-        <h1 className="text-2xl ml-1">Donations</h1>
+        <h1 className="text-lg lg:text-2xl ml-1">Donations</h1>
         <div className='flex gap-3'>
-          <Button variant="contained" component={Link} href="/donation-add">
+          <Button className="text-xs text-center" variant="contained" component={Link} href="/donation-add">
             + Add
           </Button>
-          <Button variant="contained" onClick={handleNotifyDonation}>
+          <Button className="text-xs" variant="contained" onClick={handleNotifyDonation}>
             Notify Donations
           </Button>
         </div>
