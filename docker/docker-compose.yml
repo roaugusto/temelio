@@ -16,7 +16,8 @@ services:
     healthcheck:
         test: ["CMD-SHELL", "pg_isready -d temelio -U postgres"]
         interval: 5s
-        timeout: 60s      
+        timeout: 10s
+        retries: 10      
 
   sonarqube:
     image: sonarqube:latest
@@ -86,7 +87,6 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: temelio-backend:latest
     container_name: backend-temelio
     ports:
       - "8080:8080"
@@ -112,7 +112,6 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    image: temelio-frontend:latest
     container_name: frontend-temelio
     ports:
       - "4000:4000"
@@ -128,4 +127,4 @@ networks:
     driver: bridge     
 
 volumes:
-  shared:     
+  shared:
