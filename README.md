@@ -95,6 +95,32 @@ The Email System for Nonprofit Organizations by Temelio was developed to automat
   </p>
 
 
+### Running from your desk
+
+#### Backend Configuration
+
+Before starting the backend, make sure to have the following environment variables configured:
+    
+    export DATABASE_HOSTNAME="localhost:5432"
+    export DATABASE_NAME="temelio"
+    export DATABASE_PASSWORD="t3m3l10"
+    export DATABASE_USERNAME="postgres"
+    export SENDGRID_API_KEY="sendgrid-temelio"
+    export SENDGRID_HOST="http://localhost:3000"
+    export SONAR_HOST_URL="http://localhost:9000"
+    export SONAR_PROJECT_KEY="temelio"
+    export SONAR_TOKEN=<previously obtained sonar token>
+
+#### Frontend Configuration
+
+Before starting the frontend, make sure to configure the following environment variables in the .env file located in the frontend directory:
+
+
+    NEXT_PUBLIC_API_URL=http://localhost:8080
+
+#### Note:
+Remember to stop the respective containers if they are running locally to avoid conflicts.
+
 
 ### Tools and Services
 
